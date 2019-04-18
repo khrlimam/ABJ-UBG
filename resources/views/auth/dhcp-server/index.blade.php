@@ -1,7 +1,5 @@
 @extends('layouts.app')
-
 @section('content')
-
     <div class="row">
         <div class="col-md-12">
             <div class="card">
@@ -33,7 +31,7 @@
                 @endif
 
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-striped">
                         <thead class="thead-dark">
                         <tr>
                             <th></th>
@@ -46,8 +44,7 @@
                         </thead>
                         <tbody>
                         @foreach($dhcpServers as $server)
-                            <tr hover-cursor
-                                onclick="window.location='{{ route('dhcp-server.show', $server['.id']) }}'">
+                            <tr>
                                 <td class="text-md-right">
                                     @if ($server['disabled'] == 'true') <span class="badge badge-pill badge-danger">Disabled</span> @endif
                                     @if ($server['invalid'] == 'true') <span class="badge badge-pill badge-warning">Invalid</span> @endif
@@ -57,16 +54,19 @@
                                 <td>{{ $server['address-pool'] }}</td>
                                 <td>{{ $server['lease-time'] }}</td>
                                 <td>
-                                    <form class="btn-group btn-group-sm" role="group" aria-label="..."
+                                    <form onsubmit="event.preventDefault(); confirmDeleteForm(this)"
+                                          class="btn-group btn-group-sm" role="group" aria-label="..."
                                           action="{{ route('dhcp-server.destroy', $server['.id']) }}" method="POST">
-                                        @csrf
+                                        <a href="{{ route('dhcp-server.show', $server['.id']) }}"
+                                           class="btn btn-success">View</a>
                                         <input type="hidden" name="_method" value="DELETE">
+                                        @csrf
                                         @if ($server['disabled'] == 'true')
                                             <a href="{{ route('dhcp-server.toggle', ['id' => $server['.id'],'toggle' => 'no']) }}"
-                                               class="btn btn-info">Enable</a>
+                                               class="btn btn-warning">Enable</a>
                                         @else
                                             <a href="{{ route('dhcp-server.toggle', ['id' => $server['.id'],'toggle' => 'yes']) }}"
-                                               class="btn btn-info">Disable</a>
+                                               class="btn btn-warning">Disable</a>
                                         @endif
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
@@ -79,5 +79,23 @@
             </div>
         </div>
     </div>
-
+@endsection
+@section('js')
+    <script src="{{ asset('js/sweetalert.min.js') }}"></script>
+    <script>
+        function confirmDeleteForm(form) {
+            swal("Apakah anda yakin ingin menghapus data DHCP Server?", {
+                buttons: {
+                    cancel: "Kembali",
+                    yes: {
+                        text: "Ya",
+                        value: "yes",
+                    },
+                },
+            })
+                .then((value) => {
+                    if (value == 'yes') form.submit();
+                });
+        }
+    </script>
 @endsection

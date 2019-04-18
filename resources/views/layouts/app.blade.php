@@ -26,6 +26,7 @@
             cursor: pointer;
         }
     </style>
+    @yield('css')
 </head>
 <body>
 <div id="app">
@@ -112,4 +113,5 @@
     </main>
 </div>
 </body>
+@yield('js')
 </html>

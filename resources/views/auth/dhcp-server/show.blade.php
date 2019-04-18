@@ -11,7 +11,7 @@
                     </h6>
                     @if (session('status'))
                         <div class="alert alert-success" role="alert">
-                            {{ session('status') }}. <a href="{{ route('dhcp-server.index') }}" class="alert-link">Lihat semua
+                            {{ session('status') }} <a href="{{ route('dhcp-server.index') }}" class="alert-link">Lihat semua
                                 data DHCP Server</a>
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>

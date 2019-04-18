@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\IpUtils;
 class DhcpNetworkPoolResolver
 {
 
-
     private $mikrotik;
 
     public function __construct(Guard $guard)
