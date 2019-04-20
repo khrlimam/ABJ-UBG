@@ -18,8 +18,10 @@ class DhcpServerController extends Controller
      */
     public function index()
     {
-        $dhcpServers = Auth::user()->mikrotik()->run("ip dhcp-server print");
-        return view('auth.dhcp-server.index', compact('dhcpServers'));
+        $mikrotik = Auth::user()->mikrotik();
+        $dhcpServers = $mikrotik->run("ip dhcp-server print");
+        $clientConnected = collect($mikrotik->run("ip dhcp-server lease print"))->groupBy('server');
+        return view('auth.dhcp-server.index', compact('dhcpServers', 'clientConnected'));
     }
 
     /**
@@ -44,7 +46,7 @@ class DhcpServerController extends Controller
             });
             if ($gotIp->isNotEmpty())
                 return array_merge($interface, $gotIp->first());
-            return $interface;
+            return array_merge($interface, ['address' => '-']);
         });
         return view('auth.dhcp-server.create', compact('interfaces'));
     }

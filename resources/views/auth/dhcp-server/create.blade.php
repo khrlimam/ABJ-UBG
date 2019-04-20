@@ -227,7 +227,7 @@
                                         name="dhcp-interface" required autofocus>
                                     <option value="">--- Interface Tersedia ---</option>
                                     @foreach($interfaces as $interface)
-                                        <option {{ $interface['name'] == old('dhcp-interface')?'selected':'' }} value="{{ $interface['name'] }}">Nama: {{ $interface['name'] }}, IP: {{ $interface['address'] }}</option>
+                                        <option {{ $interface['name'] == old('dhcp-interface')?'selected':'' }} value="{{ $interface['name'] }}">Tipe: {{ $interface['type'] }} - Nama: {{ $interface['name'] }} - IP: {{ $interface['address'] }}</option>
                                     @endforeach
                                 </select>
 

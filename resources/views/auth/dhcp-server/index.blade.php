@@ -35,7 +35,7 @@
                         <thead class="thead-dark">
                         <tr>
                             <th></th>
-                            <th>Nama</th>
+                            <th>Name</th>
                             <th>Interface</th>
                             <th>Pool</th>
                             <th>Lease Time</th>
@@ -49,7 +49,10 @@
                                     @if ($server['disabled'] == 'true') <span class="badge badge-pill badge-danger">Disabled</span> @endif
                                     @if ($server['invalid'] == 'true') <span class="badge badge-pill badge-warning">Invalid</span> @endif
                                 </td>
-                                <td>{{ $server['name'] }}</td>
+                                <td>
+                                    {{ $server['name'] }} <br>
+                                    <i class="fa fa-home fa-fw" aria-hidden="true"></i> {{ $clientConnected[$server['name']]->count() }}
+                                </td>
                                 <td>{{ $server['interface'] }}</td>
                                 <td>{{ $server['address-pool'] }}</td>
                                 <td>{{ $server['lease-time'] }}</td>

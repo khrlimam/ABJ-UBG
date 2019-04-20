@@ -37,6 +37,10 @@
                         <div class="col-md-8">
                             @foreach($pool->getRanges() as $range)
                                 <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                                <span class="input-group-text"
+                                                      id="inputGroup-sizing-default">{{ $loop->iteration }}</span>
+                                    </div>
                                     <label type="text" class="form-control text-md-right" aria-label="Default"
                                            aria-describedby="inputGroup-sizing-default">{{ $range[0] }}</label>
                                     <label type="text" class="form-control" aria-label="Default"
