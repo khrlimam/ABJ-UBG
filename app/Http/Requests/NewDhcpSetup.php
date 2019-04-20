@@ -18,6 +18,7 @@ class NewDhcpSetup extends FormRequest
     public static $networkDomainName = "network-domain-name";
     public static $dhcpInterface = "dhcp-interface";
     public static $dhcpLeaseTime = "dhcp-lease-time";
+    public static $dhcpName = 'dhcp-name';
     public static $dhcpStatus = "dhcp-status";
 
     /**
@@ -65,6 +66,14 @@ class NewDhcpSetup extends FormRequest
             static::$dhcpInterface => 'interface',
             static::$dhcpLeaseTime => 'lease time',
             static::$dhcpStatus => 'status'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            static::$networkSubnetMask.'.min' => 'Atleast 8!',
+            static::$networkSubnetMask.'.required' => 'Required!'
         ];
     }
 

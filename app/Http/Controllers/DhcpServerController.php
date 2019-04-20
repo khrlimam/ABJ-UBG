@@ -34,8 +34,17 @@ class DhcpServerController extends Controller
         $usedInterfaces = collect($mikrotik->run("ip dhcp-server print"))->map(function ($item) {
             return $item['interface'];
         })->toArray();
-        $interfaces = collect($mikrotik->run("interface print"))->filter(function ($item) use ($usedInterfaces) {
+        $allInterfaces = collect($mikrotik->run("interface print"))->filter(function ($item) use ($usedInterfaces) {
             return !in_array($item['name'], $usedInterfaces);
+        });
+        $ipAdresses = collect($mikrotik->run("ip address print"));
+        $interfaces = $allInterfaces->map(function ($interface) use ($ipAdresses) {
+            $gotIp = $ipAdresses->filter(function ($interfaceIp) use ($interface) {
+                return $interfaceIp['interface'] == $interface['name'];
+            });
+            if ($gotIp->isNotEmpty())
+                return array_merge($interface, $gotIp->first());
+            return $interface;
         });
         return view('auth.dhcp-server.create', compact('interfaces'));
     }
@@ -57,13 +66,14 @@ class DhcpServerController extends Controller
         ]);
 
         $addDhcpNetwork = $mikrotik->run("ip dhcp-server network add", [
-            'address' => $validated[NewDhcpSetup::$networkAddress],
+            'address' => $validated[NewDhcpSetup::$networkAddress] . '/' . $validated[NewDhcpSetup::$networkSubnetMask],
             'gateway' => $validated[NewDhcpSetup::$networkDefaultGateway],
             'dns-server' => static::commaSeparated($validated[NewDhcpSetup::$networkDns]),
             'domain' => $request->input(NewDhcpSetup::$networkDomainName)
         ]);
 
         $addDhcpServer = $mikrotik->run("ip dhcp-server add", [
+            "name" => $this->validateDhcpNameOrDefault($request->input(NewDhcpSetup::$dhcpName), $validated[NewDhcpSetup::$poolName]),
             'address-pool' => $validated[NewDhcpSetup::$poolName],
             'interface' => $validated[NewDhcpSetup::$dhcpInterface],
             'lease-time' => $request->input(NewDhcpSetup::$dhcpLeaseTime),
@@ -132,8 +142,14 @@ class DhcpServerController extends Controller
 
     public static function isSuccess($returned)
     {
-        if (is_array($returned)) return count($returned) == 0;
+        if (is_array($returned)) return count($returned) == 0 && !key_exists('!trap', $returned);
         return FALSE != $returned;
+    }
+
+    private function validateDhcpNameOrDefault($newName, $pool)
+    {
+        if (empty(trim($newName))) return 'dhcp_server_' . $pool;
+        return $newName;
     }
 
     public static function commaSeparated(array $data)

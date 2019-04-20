@@ -465,12 +465,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/khrlimam/routeros-api-wrapper.git",
-                "reference": "599d9c6b4bfac3713491f0d2f662327e62901053"
+                "reference": "9be12276dcb31ddcd1921f8ebdd547633bbd5e41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/khrlimam/routeros-api-wrapper/zipball/599d9c6b4bfac3713491f0d2f662327e62901053",
-                "reference": "599d9c6b4bfac3713491f0d2f662327e62901053",
+                "url": "https://api.github.com/repos/khrlimam/routeros-api-wrapper/zipball/9be12276dcb31ddcd1921f8ebdd547633bbd5e41",
+                "reference": "9be12276dcb31ddcd1921f8ebdd547633bbd5e41",
                 "shasum": ""
             },
             "require": {
@@ -484,7 +484,10 @@
             "autoload": {
                 "psr-4": {
                     "KhairulImam\\ROSWrapper\\": "./src/"
-                }
+                },
+                "classmap": [
+                    "tests/rollbackablecommands"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -497,7 +500,7 @@
                 }
             ],
             "description": "Just another Mikrotik RouterOS Wrapper :D",
-            "time": "2019-04-19T15:13:05+00:00"
+            "time": "2019-04-20T07:21:51+00:00"
         },
         {
             "name": "krok/routeros-api",
@@ -3749,16 +3752,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "7.5.8",
+            "version": "7.5.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "c29c0525cf4572c11efe1db49a8b8aee9dfac58a"
+                "reference": "134669cf0eeac3f79bc7f0c793efbc158bffc160"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c29c0525cf4572c11efe1db49a8b8aee9dfac58a",
-                "reference": "c29c0525cf4572c11efe1db49a8b8aee9dfac58a",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/134669cf0eeac3f79bc7f0c793efbc158bffc160",
+                "reference": "134669cf0eeac3f79bc7f0c793efbc158bffc160",
                 "shasum": ""
             },
             "require": {
@@ -3829,7 +3832,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2019-03-26T13:23:54+00:00"
+            "time": "2019-04-19T15:50:46+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

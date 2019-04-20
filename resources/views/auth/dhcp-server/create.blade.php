@@ -86,7 +86,7 @@
                             <div class="col-md-8">
 
                                 <div class="row">
-                                    <div class="col-md-9">
+                                    <div class="col-md-8">
                                         <input id="network-address" type="text"
                                             placeholder="Contoh: 192.168.2.0"
                                             class="form-control{{ $errors->has('network-address') ? ' is-invalid' : '' }}"
@@ -98,11 +98,12 @@
                                             </span>
                                         @endif
                                     </div>
+                                    <label class="col-md-1 col-form-label">/</label>
                                     <div class="col-md-3">
-                                    <input id="network-subnetmask" type="text"
+                                    <input id="network-subnetmask" type="number"
                                             placeholder="24"
                                             class="form-control{{ $errors->has('network-subnetmask') ? ' is-invalid' : '' }}"
-                                            name="network-subnetmask" value="{{ old('network-subnetmask') }}" required autofocus>
+                                            name="network-subnetmask" value="{{ old('network-subnetmask') }}" autofocus>
 
                                         @if ($errors->has('network-subnetmask'))
                                             <span class="invalid-feedback" role="alert">
@@ -205,6 +206,17 @@
                         <h5 class="card-title">Form DHCP Server</h5>
 
                         <div class="form-group row">
+                            <label for="network-domain-name"
+                                   class="col-md-3 col-form-label">{{ __('Nama') }}</label>
+
+                            <div class="col-md-8">
+                                <input id="dhcp-name" value="{{old('dhcp-name')}}" type="text"
+                                       class="form-control"
+                                       name="dhcp-name" placeholder="Contoh: dhcp_server_pool1">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
                             <label for="dhcp-interface"
                                    class="col-md-3 col-form-label">{{ __('Interface') }} <span
                                         class="text-danger">*</span></label>
@@ -215,7 +227,7 @@
                                         name="dhcp-interface" required autofocus>
                                     <option value="">--- Interface Tersedia ---</option>
                                     @foreach($interfaces as $interface)
-                                        <option {{ $interface['name'] == old('dhcp-interface')?'selected':'' }} value="{{ $interface['name'] }}">{{ $interface['name'] }}</option>
+                                        <option {{ $interface['name'] == old('dhcp-interface')?'selected':'' }} value="{{ $interface['name'] }}">Nama: {{ $interface['name'] }}, IP: {{ $interface['address'] }}</option>
                                     @endforeach
                                 </select>
 
