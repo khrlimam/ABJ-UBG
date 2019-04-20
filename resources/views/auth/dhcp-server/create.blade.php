@@ -84,16 +84,35 @@
                                         class="text-danger">*</span></label>
 
                             <div class="col-md-8">
-                                <input id="network-address" type="text"
-                                       placeholder="Contoh: 192.168.2.0/24"
-                                       class="form-control{{ $errors->has('network-address') ? ' is-invalid' : '' }}"
-                                       name="network-address" value="{{ old('network-address') }}" required autofocus>
 
-                                @if ($errors->has('network-address'))
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $errors->first('network-address') }}</strong>
-                                    </span>
-                                @endif
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        <input id="network-address" type="text"
+                                            placeholder="Contoh: 192.168.2.0"
+                                            class="form-control{{ $errors->has('network-address') ? ' is-invalid' : '' }}"
+                                            name="network-address" value="{{ old('network-address') }}" required autofocus>
+
+                                        @if ($errors->has('network-address'))
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('network-address') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-3">
+                                    <input id="network-subnetmask" type="text"
+                                            placeholder="24"
+                                            class="form-control{{ $errors->has('network-subnetmask') ? ' is-invalid' : '' }}"
+                                            name="network-subnetmask" value="{{ old('network-subnetmask') }}" required autofocus>
+
+                                        @if ($errors->has('network-subnetmask'))
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('network-subnetmask') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                
                             </div>
                         </div>
 

@@ -12,6 +12,7 @@ class NewDhcpSetup extends FormRequest
     public static $poolRangeBegin = 'pool-range-begin';
     public static $poolRangeEnd = 'pool-range-end';
     public static $networkAddress = 'network-address';
+    public static $networkSubnetMask = 'network-subnetmask';
     public static $networkDefaultGateway = "network-default-gateway";
     public static $networkDns = "network-dns";
     public static $networkDomainName = "network-domain-name";
@@ -40,7 +41,8 @@ class NewDhcpSetup extends FormRequest
             static::$poolName => 'required|string',
             static::$poolRangeBegin => 'required|ipv4',
             static::$poolRangeEnd => 'required|ipv4',
-            static::$networkAddress => 'required',
+            static::$networkAddress => 'required|ipv4',
+            static::$networkSubnetMask => 'required|integer|min:8',
             static::$networkDefaultGateway => 'required|ipv4',
             static::$networkDns => 'required|array|min:1',
             static::$networkDns.'.*' => 'distinct|nullable|ipv4',
@@ -56,6 +58,7 @@ class NewDhcpSetup extends FormRequest
             static::$poolRangeBegin => 'IP pool start range ',
             static::$poolRangeEnd => 'IP pool end range',
             static::$networkAddress => 'network address',
+            static::$networkSubnetMask => 'subnet mask',
             static::$networkDefaultGateway => 'default gateway',
             static::$networkDns.'.*' => 'DNS servers',
             static::$networkDomainName => 'domain name',

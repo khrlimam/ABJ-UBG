@@ -46,8 +46,9 @@ class LoginController extends Controller
     protected function validateLogin(Request $request)
     {
         return $request->validate([
-            'host-ip' => 'required|string',
-            $this->username() => 'required|string'
+            'host-ip' => 'required|string|ipv4',
+            $this->username() => 'required|string',
+            'password' => 'nullable'
         ]);
     }
 
