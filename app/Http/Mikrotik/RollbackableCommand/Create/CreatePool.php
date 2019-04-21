@@ -12,17 +12,15 @@ use Exception;
 /**
  * @property  mikrotik
  */
-class CreateDhcpServer extends BaseCreateRollbackableCommand
+class CreatePool extends BaseCreateRollbackableCommand
 {
-
-
     /**
      * @return string
      * command that will be ran
      */
     public function getRunCommand()
     {
-        return 'ip dhcp-server add';
+        return 'ip pool add';
     }
 
     /**
@@ -30,12 +28,7 @@ class CreateDhcpServer extends BaseCreateRollbackableCommand
      */
     function name()
     {
-        return 'Create DHCP Network';
-    }
-
-    public function getId()
-    {
-        return $this->id;
+        return 'Create IP Pool';
     }
 
     /**
@@ -43,6 +36,6 @@ class CreateDhcpServer extends BaseCreateRollbackableCommand
      */
     public function getRollbackCommand()
     {
-        return 'ip dhcp-server remove';
+        return 'ip pool remove';
     }
 }

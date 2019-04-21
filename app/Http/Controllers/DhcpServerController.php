@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Mikrotik\RollbackableCommand\Create\CreateDhcpNetwork;
+use App\Http\Mikrotik\RollbackableCommand\Create\CreateDhcpServer;
+use App\Http\Mikrotik\RollbackableCommand\Create\CreatePool;
 use App\Http\Mikrotik\Util\DhcpNetworkPoolResolver;
+use App\Http\Mikrotik\Util\Operation;
 use App\Http\Requests\NewDhcpSetup;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use KhairulImam\ROSWrapper\RollbackedException;
+use KhairulImam\ROSWrapper\Sequential;
 
 class DhcpServerController extends Controller
 {
@@ -62,31 +68,47 @@ class DhcpServerController extends Controller
         $validated = $request->validated();
         $mikrotik = Auth::user()->mikrotik();
 
-        $addIpPool = $mikrotik->run("ip pool add", [
+
+        $newPoolData = [
             'name' => $validated[NewDhcpSetup::$poolName],
             'ranges' => $validated[NewDhcpSetup::$poolRangeBegin] . '-' . $validated[NewDhcpSetup::$poolRangeEnd]
-        ]);
+        ];
 
-        $addDhcpNetwork = $mikrotik->run("ip dhcp-server network add", [
+        $newNetworkData = [
             'address' => $validated[NewDhcpSetup::$networkAddress] . '/' . $validated[NewDhcpSetup::$networkSubnetMask],
             'gateway' => $validated[NewDhcpSetup::$networkDefaultGateway],
             'dns-server' => static::commaSeparated($validated[NewDhcpSetup::$networkDns]),
             'domain' => $request->input(NewDhcpSetup::$networkDomainName)
-        ]);
+        ];
 
-        $addDhcpServer = $mikrotik->run("ip dhcp-server add", [
+        $newDhcpServerData = [
             "name" => $this->validateDhcpNameOrDefault($request->input(NewDhcpSetup::$dhcpName), $validated[NewDhcpSetup::$poolName]),
             'address-pool' => $validated[NewDhcpSetup::$poolName],
             'interface' => $validated[NewDhcpSetup::$dhcpInterface],
             'lease-time' => $request->input(NewDhcpSetup::$dhcpLeaseTime),
             'disabled' => $validated[NewDhcpSetup::$dhcpStatus]
-        ]);
+        ];
 
-        if (static::isSuccess($addIpPool)
-            && static::isSuccess($addDhcpNetwork)
-            && static::isSuccess($addDhcpServer))
-            return redirect()->route('dhcp-server.show', $addDhcpServer)->with('status', 'Berhasil mengkonfigurasi DHCP Server baru!');
-        else return redirect()->back()->with('fail', 'Mohon maaf, terjadi kesalahan pada aktivitas anda')->withInput();
+
+        try {
+            $mikrotik->runSequentialProcess(Sequential::process(
+                new CreatePool($mikrotik, $newPoolData),
+                new CreateDhcpNetwork($mikrotik, $newNetworkData),
+                $createDhcpServer = new CreateDhcpServer($mikrotik, $newDhcpServerData)
+            ));
+            return redirect()->route('dhcp-server.show', $createDhcpServer->getId())->with('status', 'Berhasil mengkonfigurasi DHCP Server baru!');
+        } catch (RollbackedException $exception) {
+            $prettyMessage = "Mohon maaf, terjadi kesalahan ketika menjalankan proses <b>" . $exception->getFailedCommandName() . "</b><br>";
+            $prettyMessage .= "Error terjadi dengan alasan <b>".$exception->getReason()."</b><br>";
+            $prettyMessage .= "Proses berikut telah di rollback:<br>";
+            $prettyMessage .= "<ol>";
+            foreach ($exception->getRollbackedCommands() as $rolledBack) {
+                $prettyMessage .= "<li>" . $rolledBack->name() . "</li>";
+            }
+            $prettyMessage .= "</ol>";
+            return redirect()->back()->with('fail', $prettyMessage)->withInput();
+        }
+
     }
 
     /**
@@ -124,9 +146,9 @@ class DhcpServerController extends Controller
         $deleteNetwork = $mikrotik->run("ip dhcp-server network remove", ['.id' => $network->getId()]);
         $deletePool = $mikrotik->run("ip pool remove", ['.id' => $pool->getId()]);
 
-        if (self::isSuccess($deleteDhcpServer)
-            && self::isSuccess($deleteNetwork)
-            && self::isSuccess($deletePool)) {
+        if (Operation::isSuccess($deleteDhcpServer)
+            && Operation::isSuccess($deleteNetwork)
+            && Operation::isSuccess($deletePool)) {
             return redirect()->route('dhcp-server.index')->with('status', 'Data DHCP Server dengan checksum ' . $id . ' telah dihapus');
         }
     }
@@ -140,12 +162,6 @@ class DhcpServerController extends Controller
         if (count($operation) == 0) {
             return redirect()->route('dhcp-server.index')->with('status', 'Data DHCP Server dengan checksum ' . $id . ' telah diubah');
         }
-    }
-
-    public static function isSuccess($returned)
-    {
-        if (is_array($returned)) return count($returned) == 0 && !key_exists('!trap', $returned);
-        return FALSE != $returned;
     }
 
     private function validateDhcpNameOrDefault($newName, $pool)

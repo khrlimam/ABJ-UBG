@@ -5,11 +5,11 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <a href="{{route('dhcp-server.create')}}" class="btn btn-primary float-right">Setup DHCP
-                            Server Baru</a>
+                        <a href="{{route('dhcp-server.create')}}" class="btn btn-primary float-right"><i
+                                    class="fa fa-plus" aria-hidden="true"></i> DHCP Server</a>
                         DHCP Server
                     </h5>
-                    <h6 class="card-subtitle mb-2 text-muted">Dibawah adalah daftar DHCP Server yang ada pada mikrotik
+                    <h6 class="card-subtitle mb-2 text-muted">Dibawah adalah daftar DHCP Server yang ada pada MikroTik
                         Anda.</h6>
                 </div>
 
@@ -31,15 +31,15 @@
                 @endif
 
                 <div class="table-responsive">
-                    <table class="table table-striped">
+                    <table class="table table-hover">
                         <thead class="thead-dark">
                         <tr>
                             <th></th>
-                            <th>Name</th>
+                            <th>Server name</th>
                             <th>Interface</th>
                             <th>Pool</th>
                             <th>Lease Time</th>
-                            <th>???</th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -51,7 +51,8 @@
                                 </td>
                                 <td>
                                     {{ $server['name'] }} <br>
-                                    <i class="fa fa-home fa-fw" aria-hidden="true"></i> {{ $clientConnected[$server['name']]->count() }}
+                                    <span class="badge badge-primary"><i class="fa fa-laptop"
+                                                                         aria-hidden="true"></i> DHCP client: {{ !empty($clientConnected[$server['name']])? $clientConnected[$server['name']]->count():0 }}</span>
                                 </td>
                                 <td>{{ $server['interface'] }}</td>
                                 <td>{{ $server['address-pool'] }}</td>
@@ -61,7 +62,7 @@
                                           class="btn-group btn-group-sm" role="group" aria-label="..."
                                           action="{{ route('dhcp-server.destroy', $server['.id']) }}" method="POST">
                                         <a href="{{ route('dhcp-server.show', $server['.id']) }}"
-                                           class="btn btn-success">View</a>
+                                           class="btn btn-success"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         <input type="hidden" name="_method" value="DELETE">
                                         @csrf
                                         @if ($server['disabled'] == 'true')
@@ -71,7 +72,8 @@
                                             <a href="{{ route('dhcp-server.toggle', ['id' => $server['.id'],'toggle' => 'yes']) }}"
                                                class="btn btn-warning">Disable</a>
                                         @endif
-                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button type="submit" class="btn btn-danger"><i class="fa fa-trash"
+                                                                                        aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
