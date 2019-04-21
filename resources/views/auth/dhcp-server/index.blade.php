@@ -50,11 +50,10 @@
                                     @if ($server['invalid'] == 'true') <span class="badge badge-pill badge-warning">Invalid</span> @endif
                                 </td>
                                 <td>
-                                    {{ $server['name'] }} <br>
                                     <span hover-cursor class="badge badge-primary" data-toggle="modal"
                                           data-target="#exampleModal">
-                                        <i class="fa fa-laptop" aria-hidden="true"></i> DHCP client: {{ !empty($clientConnected[$server['name']])
-                                        ? $clientConnected[$server['name']]->count() : 0 }}</span>
+                                        <i class="fa fa-laptop" aria-hidden="true"></i> {{ !empty($clientConnected[$server['name']])
+                                        ? $clientConnected[$server['name']]->count() : 0 }}</span> {{ $server['name'] }}
                                 </td>
                                 <td>{{ $server['interface'] }}</td>
                                 <td>{{ $server['address-pool'] }}</td>
@@ -63,18 +62,25 @@
                                     <form onsubmit="event.preventDefault(); confirmDeleteForm(this)"
                                           class="btn-group btn-group-sm" role="group" aria-label="..."
                                           action="{{ route('dhcp-server.destroy', $server['.id']) }}" method="POST">
-                                        <a href="{{ route('dhcp-server.show', $server['.id']) }}"
+                                        <a data-toggle="tooltip" title="Lihat rincian"
+                                           href="{{ route('dhcp-server.show', $server['.id']) }}"
                                            class="btn btn-success"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         <input type="hidden" name="_method" value="DELETE">
                                         @csrf
                                         @if ($server['disabled'] == 'true')
-                                            <a href="{{ route('dhcp-server.toggle', ['id' => $server['.id'],'toggle' => 'no']) }}"
+                                            <a data-toggle="tooltip" title="Toggle"
+                                               href="{{ route('dhcp-server.toggle', ['id' => $server['.id'],'toggle' => 'no']) }}"
                                                class="btn btn-warning">Enable</a>
                                         @else
-                                            <a href="{{ route('dhcp-server.toggle', ['id' => $server['.id'],'toggle' => 'yes']) }}"
+                                            <a data-toggle="tooltip" title="Toggle"
+                                               href="{{ route('dhcp-server.toggle', ['id' => $server['.id'],'toggle' => 'yes']) }}"
                                                class="btn btn-warning">Disable</a>
                                         @endif
-                                        <button type="submit" class="btn btn-danger"><i class="fa fa-trash"
+                                        <a data-toggle="tooltip" title="Edit data" href="#"
+                                           class="btn btn-dark"><i class="fa fa-edit"
+                                                                   aria-hidden="true"></i></a>
+                                        <button data-toggle="tooltip" title="Hapus data"
+                                                type="submit" class="btn btn-danger"><i class="fa fa-trash"
                                                                                         aria-hidden="true"></i></button>
                                     </form>
                                 </td>
@@ -143,6 +149,12 @@
 @section('js')
     <script src="{{ asset('js/sweetalert.min.js') }}"></script>
     <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip({
+                placement: 'bottom'
+            })
+        })
+
         function confirmDeleteForm(form) {
             swal("Apakah anda yakin ingin menghapus data DHCP Server?", {
                 buttons: {
