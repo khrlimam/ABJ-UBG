@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Mikrotik\RollbackableCommand\Create\CreateDhcpNetwork;
 use App\Http\Mikrotik\RollbackableCommand\Create\CreateDhcpServer;
 use App\Http\Mikrotik\RollbackableCommand\Create\CreatePool;
+use App\Http\Mikrotik\RollbackableCommand\Delete\DeleteDhcpNetwork;
+use App\Http\Mikrotik\RollbackableCommand\Delete\DeleteDhcpServer;
+use App\Http\Mikrotik\RollbackableCommand\Delete\DeletePool;
 use App\Http\Mikrotik\Util\DhcpNetworkPoolResolver;
 use App\Http\Mikrotik\Util\Operation;
 use App\Http\Requests\NewDhcpSetup;
@@ -68,7 +71,6 @@ class DhcpServerController extends Controller
         $validated = $request->validated();
         $mikrotik = Auth::user()->mikrotik();
 
-
         $newPoolData = [
             'name' => $validated[NewDhcpSetup::$poolName],
             'ranges' => $validated[NewDhcpSetup::$poolRangeBegin] . '-' . $validated[NewDhcpSetup::$poolRangeEnd]
@@ -98,15 +100,7 @@ class DhcpServerController extends Controller
             ));
             return redirect()->route('dhcp-server.show', $createDhcpServer->getId())->with('status', 'Berhasil mengkonfigurasi DHCP Server baru!');
         } catch (RollbackedException $exception) {
-            $prettyMessage = "Mohon maaf, terjadi kesalahan ketika menjalankan proses <b>" . $exception->getFailedCommandName() . "</b><br>";
-            $prettyMessage .= "Error terjadi dengan alasan <b>".$exception->getReason()."</b><br>";
-            $prettyMessage .= "Proses berikut telah di rollback:<br>";
-            $prettyMessage .= "<ol>";
-            foreach ($exception->getRollbackedCommands() as $rolledBack) {
-                $prettyMessage .= "<li>" . $rolledBack->name() . "</li>";
-            }
-            $prettyMessage .= "</ol>";
-            return redirect()->back()->with('fail', $prettyMessage)->withInput();
+            return redirect()->back()->with('fail', Operation::getPrettyMessage($exception))->withInput();
         }
 
     }
@@ -142,14 +136,15 @@ class DhcpServerController extends Controller
         $network = $resolver->getNetwork();
         $pool = $resolver->getPool();
 
-        $deleteDhcpServer = $mikrotik->run("ip dhcp-server remove", ['.id' => $dhcp->getId()]);
-        $deleteNetwork = $mikrotik->run("ip dhcp-server network remove", ['.id' => $network->getId()]);
-        $deletePool = $mikrotik->run("ip pool remove", ['.id' => $pool->getId()]);
-
-        if (Operation::isSuccess($deleteDhcpServer)
-            && Operation::isSuccess($deleteNetwork)
-            && Operation::isSuccess($deletePool)) {
+        try {
+            $mikrotik->runSequentialProcess(Sequential::process(
+                new DeleteDhcpServer($mikrotik, $dhcp->getData()),
+                new DeleteDhcpNetwork($mikrotik, $network->getData()),
+                new DeletePool($mikrotik, $pool->getData())
+            ));
             return redirect()->route('dhcp-server.index')->with('status', 'Data DHCP Server dengan checksum ' . $id . ' telah dihapus');
+        } catch (RollbackedException $exception) {
+            return redirect()->route('dhcp-server.index')->with('fail', Operation::getPrettyMessage($exception));
         }
     }
 

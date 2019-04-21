@@ -4,14 +4,6 @@
 namespace App\Http\Mikrotik\RollbackableCommand\Create;
 
 
-use App\Http\Mikrotik\Util\Operation;
-use KhairulImam\ROSWrapper\RollbackableCommand;
-use KhairulImam\ROSWrapper\Wrapper as Mikrotik;
-use Exception;
-
-/**
- * @property  mikrotik
- */
 class CreateDhcpNetwork extends BaseCreateRollbackableCommand
 {
     /**

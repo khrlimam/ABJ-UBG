@@ -4,19 +4,19 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                @if (session('fail'))
-                    <div class="alert alert-danger" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        {!! session('fail') !!}
-                    </div>
-                @endif
                 <div class="card-body">
                     <h4 class="card-title">Form Tambah DHCP Server</h4>
                     <h6 class="card-subtitle mb-2 text-muted">
                         Silakan isi data DHCP Server sesuai kebutuhan Anda.
                     </h6>
+                    @if (session('fail'))
+                        <div class="alert alert-danger" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            {!! session('fail') !!}
+                        </div>
+                    @endif
                     <br>
                     <form method="POST" action="{{ route('dhcp-server.store') }}">
                         @csrf

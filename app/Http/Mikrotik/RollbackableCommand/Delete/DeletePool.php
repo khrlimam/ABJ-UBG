@@ -3,7 +3,7 @@
 
 namespace App\Http\Mikrotik\RollbackableCommand\Delete;
 
-class DeleteDhcpServer extends BaseDeleteRollbackableCommand
+class DeletePool extends BaseDeleteRollbackableCommand
 {
     /**
      * @return string
@@ -11,7 +11,7 @@ class DeleteDhcpServer extends BaseDeleteRollbackableCommand
      */
     public function getRunCommand()
     {
-        return 'ip dhcp-server remove';
+        return 'ip pool remove';
     }
 
     /**
@@ -19,7 +19,7 @@ class DeleteDhcpServer extends BaseDeleteRollbackableCommand
      */
     public function getRollbackCommand()
     {
-        return 'ip dhcp-server add';
+        return 'ip pool add';
     }
 
     /**
@@ -27,6 +27,6 @@ class DeleteDhcpServer extends BaseDeleteRollbackableCommand
      */
     function name()
     {
-        return 'Delete DHCP Server';
+        return 'Delete IP Pool';
     }
 }

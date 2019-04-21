@@ -23,10 +23,10 @@
                 @endif
                 @if (session('fail'))
                     <div class="alert alert-danger" role="alert">
-                        {{ session('fail') }}
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
+                        {!! session('fail') !!}
                     </div>
                 @endif
 
@@ -51,8 +51,10 @@
                                 </td>
                                 <td>
                                     {{ $server['name'] }} <br>
-                                    <span class="badge badge-primary"><i class="fa fa-laptop"
-                                                                         aria-hidden="true"></i> DHCP client: {{ !empty($clientConnected[$server['name']])? $clientConnected[$server['name']]->count():0 }}</span>
+                                    <span hover-cursor class="badge badge-primary" data-toggle="modal"
+                                          data-target="#exampleModal">
+                                        <i class="fa fa-laptop" aria-hidden="true"></i> DHCP client: {{ !empty($clientConnected[$server['name']])
+                                        ? $clientConnected[$server['name']]->count() : 0 }}</span>
                                 </td>
                                 <td>{{ $server['interface'] }}</td>
                                 <td>{{ $server['address-pool'] }}</td>
@@ -80,6 +82,59 @@
                         @endforeach
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Client DHCP yang terhubung</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <table class="table">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th>Address</th>
+                        <th>MAC Address</th>
+                        <th>Client ID</th>
+                        <th>Hostname</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>11:11:11:11:11</td>
+                        <td>11:22:22:33:33</td>
+                        <td>1313131313</td>
+                        <td>Ubuntu</td>
+                    </tr>
+                    <tr>
+                        <td>11:11:11:11:11</td>
+                        <td>11:22:22:33:33</td>
+                        <td>1313131313</td>
+                        <td>Ubuntu</td>
+                    </tr>
+                    <tr>
+                        <td>11:11:11:11:11</td>
+                        <td>11:22:22:33:33</td>
+                        <td>1313131313</td>
+                        <td>Ubuntu</td>
+                    </tr>
+                    <tr>
+                        <td>11:11:11:11:11</td>
+                        <td>11:22:22:33:33</td>
+                        <td>1313131313</td>
+                        <td>Ubuntu</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
