@@ -46,5 +46,15 @@ class DhcpNetwork extends NonNullData
         return key_exists('domain', $this->data) ? $this->data['domain'] : '-';
     }
 
+    public function getSubnetMask()
+    {
+        return explode('/', $this->getAddress())[1];
+    }
+
+    public function getAddressOnly()
+    {
+        return explode('/', $this->getAddress())[0];
+    }
+
 
 }

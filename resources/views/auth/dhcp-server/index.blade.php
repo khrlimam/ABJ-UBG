@@ -5,7 +5,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <a href="{{route('dhcp-server.create')}}" class="btn btn-primary float-right"><i
+                        <a href="{{route('dhcp-server.create')}}" class="btn btn-outline-primary float-right"><i
                                     class="fa fa-plus" aria-hidden="true"></i> DHCP Server</a>
                         DHCP Server
                     </h5>
@@ -47,7 +47,7 @@
                             <tr>
                                 <td class="text-md-right">
                                     @if ($server['disabled'] == 'true') <span data-toggle="tooltip" title="Disabled"
-                                                                              class="badge badge-pill badge-danger">D</span> @endif
+                                                                              class="badge badge-pill badge-danger"><i class="fa fa-times"></i></span> @endif
                                     @if ($server['invalid'] == 'true') <span data-toggle="tooltip" title="Invalid"
                                                                              class="badge badge-pill badge-warning">I</span> @endif
                                     @if(!empty($clientConnected[$server['name']]))
@@ -79,7 +79,7 @@
                                                href="{{ route('dhcp-server.toggle', ['id' => $server['.id'],'toggle' => 'yes']) }}"
                                                class="btn btn-warning">Disable</a>
                                         @endif
-                                        <a data-toggle="tooltip" title="Edit data" href="#"
+                                        <a data-toggle="tooltip" title="Edit data" href="{{ route('dhcp-server.edit', $server['.id']) }}"
                                            class="btn btn-dark"><i class="fa fa-edit"
                                                                    aria-hidden="true"></i></a>
                                         <button data-toggle="tooltip" title="Hapus data"

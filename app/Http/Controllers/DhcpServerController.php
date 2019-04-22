@@ -8,9 +8,13 @@ use App\Http\Mikrotik\RollbackableCommand\Create\CreatePool;
 use App\Http\Mikrotik\RollbackableCommand\Delete\DeleteDhcpNetwork;
 use App\Http\Mikrotik\RollbackableCommand\Delete\DeleteDhcpServer;
 use App\Http\Mikrotik\RollbackableCommand\Delete\DeletePool;
+use App\Http\Mikrotik\RollbackableCommand\Update\UpdateDhcpNetwork;
+use App\Http\Mikrotik\RollbackableCommand\Update\UpdateDhcpServer;
+use App\Http\Mikrotik\RollbackableCommand\Update\UpdatePool;
 use App\Http\Mikrotik\Util\DhcpNetworkPoolResolver;
 use App\Http\Mikrotik\Util\Operation;
-use App\Http\Requests\NewDhcpSetup;
+use App\Http\Requests\DhcpSetup;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -40,23 +44,7 @@ class DhcpServerController extends Controller
      */
     public function create()
     {
-        $mikrotik = Auth::user()->mikrotik();
-
-        $usedInterfaces = collect($mikrotik->run("ip dhcp-server print"))->map(function ($item) {
-            return $item['interface'];
-        })->toArray();
-        $allInterfaces = collect($mikrotik->run("interface print"))->filter(function ($item) use ($usedInterfaces) {
-            return !in_array($item['name'], $usedInterfaces);
-        });
-        $ipAdresses = collect($mikrotik->run("ip address print"));
-        $interfaces = $allInterfaces->map(function ($interface) use ($ipAdresses) {
-            $gotIp = $ipAdresses->filter(function ($interfaceIp) use ($interface) {
-                return $interfaceIp['interface'] == $interface['name'];
-            });
-            if ($gotIp->isNotEmpty())
-                return array_merge($interface, $gotIp->first());
-            return array_merge($interface, ['address' => '-']);
-        });
+        $interfaces = Operation::getUnusedInterfaceAlongWithIpAddress(Auth::user()->mikrotik());
         return view('auth.dhcp-server.create', compact('interfaces'));
     }
 
@@ -66,29 +54,29 @@ class DhcpServerController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return Response
      */
-    public function store(NewDhcpSetup $request)
+    public function store(DhcpSetup $request)
     {
         $validated = $request->validated();
         $mikrotik = Auth::user()->mikrotik();
 
         $newPoolData = [
-            'name' => $validated[NewDhcpSetup::$poolName],
-            'ranges' => $validated[NewDhcpSetup::$poolRangeBegin] . '-' . $validated[NewDhcpSetup::$poolRangeEnd]
+            'name' => $validated[DhcpSetup::$poolName],
+            'ranges' => $validated[DhcpSetup::$poolRangeBegin] . '-' . $validated[DhcpSetup::$poolRangeEnd]
         ];
 
         $newNetworkData = [
-            'address' => $validated[NewDhcpSetup::$networkAddress] . '/' . $validated[NewDhcpSetup::$networkSubnetMask],
-            'gateway' => $validated[NewDhcpSetup::$networkDefaultGateway],
-            'dns-server' => static::commaSeparated($validated[NewDhcpSetup::$networkDns]),
-            'domain' => $request->input(NewDhcpSetup::$networkDomainName)
+            'address' => $validated[DhcpSetup::$networkAddress] . '/' . $validated[DhcpSetup::$networkSubnetMask],
+            'gateway' => $validated[DhcpSetup::$networkDefaultGateway],
+            'dns-server' => static::commaSeparated($validated[DhcpSetup::$networkDns]),
+            'domain' => $request->input(DhcpSetup::$networkDomainName)
         ];
 
         $newDhcpServerData = [
-            "name" => $this->validateDhcpNameOrDefault($request->input(NewDhcpSetup::$dhcpName), $validated[NewDhcpSetup::$poolName]),
-            'address-pool' => $validated[NewDhcpSetup::$poolName],
-            'interface' => $validated[NewDhcpSetup::$dhcpInterface],
-            'lease-time' => $request->input(NewDhcpSetup::$dhcpLeaseTime),
-            'disabled' => $validated[NewDhcpSetup::$dhcpStatus]
+            "name" => $this->validateDhcpNameOrDefault($request->input(DhcpSetup::$dhcpName), $validated[DhcpSetup::$poolName]),
+            'address-pool' => $validated[DhcpSetup::$poolName],
+            'interface' => $validated[DhcpSetup::$dhcpInterface],
+            'lease-time' => $request->input(DhcpSetup::$dhcpLeaseTime),
+            'disabled' => $validated[DhcpSetup::$dhcpStatus]
         ];
 
 
@@ -146,6 +134,75 @@ class DhcpServerController extends Controller
         } catch (RollbackedException $exception) {
             return redirect()->route('dhcp-server.index')->with('fail', Operation::getPrettyMessage($exception));
         }
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id, DhcpNetworkPoolResolver $dhcpNetworkPoolResolver)
+    {
+        $interfaces = Operation::getAvailableInterfacesAlongWithIpAddresses(Auth::user()->mikrotik());
+        $resolver = $dhcpNetworkPoolResolver->resolveForDhcpId($id);
+        $dhcp = $resolver->getDhcpServer();
+        $network = $resolver->getNetwork();
+        $pool = $resolver->getPool();
+        return view('auth.dhcp-server.edit', compact('interfaces', 'dhcp', 'network', 'pool'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param DhcpSetup $request
+     * @param int $id
+     * @param DhcpNetworkPoolResolver $dhcpNetworkPoolResolver
+     * @return void
+     */
+    public function update(DhcpSetup $request, $id, DhcpNetworkPoolResolver $dhcpNetworkPoolResolver)
+    {
+        $validated = $request->validated();
+        $mikrotik = Auth::user()->mikrotik();
+
+        $resolver = $dhcpNetworkPoolResolver->resolveForDhcpId($id);
+        $dhcp = $resolver->getDhcpServer();
+        $network = $resolver->getNetwork();
+        $pool = $resolver->getPool();
+
+        $newPoolData = [
+            'name' => $validated[DhcpSetup::$poolName],
+            'ranges' => $validated[DhcpSetup::$poolRangeBegin] . '-' . $validated[DhcpSetup::$poolRangeEnd]
+        ];
+
+        $newNetworkData = [
+            'address' => $validated[DhcpSetup::$networkAddress] . '/' . $validated[DhcpSetup::$networkSubnetMask],
+            'gateway' => $validated[DhcpSetup::$networkDefaultGateway],
+            'dns-server' => static::commaSeparated($validated[DhcpSetup::$networkDns]),
+            'domain' => $request->input(DhcpSetup::$networkDomainName)
+        ];
+
+        $newDhcpServerData = [
+            "name" => $this->validateDhcpNameOrDefault($request->input(DhcpSetup::$dhcpName), $validated[DhcpSetup::$poolName]),
+            'address-pool' => $validated[DhcpSetup::$poolName],
+            'interface' => $validated[DhcpSetup::$dhcpInterface],
+            'lease-time' => $request->input(DhcpSetup::$dhcpLeaseTime),
+            'disabled' => $validated[DhcpSetup::$dhcpStatus]
+        ];
+
+        try {
+            $mikrotik->runSequentialProcess(Sequential::process(
+                new UpdatePool($mikrotik, $pool->getData(), $newPoolData),
+                new UpdateDhcpNetwork($mikrotik, $network->getData(), $newNetworkData),
+                new UpdateDhcpServer($mikrotik, $dhcp->getData(), $newDhcpServerData)
+            ));
+            return redirect()->route('dhcp-server.edit', $dhcp->getId())->with('status', 'Data DHCP Server dengan checksum ' . $id . ' telah diupdate.');
+        } catch (RollbackedException $exception) {
+            return redirect()->back()->withInput()->with('fail', Operation::getPrettyMessage($exception));
+        }
+
+
+        dd($validated);
     }
 
     public function toggle($id, $toggle)

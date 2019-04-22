@@ -4,10 +4,10 @@
 Route::view('/', 'welcome');
 
 Route::prefix('ip')->middleware('auth')->group(function () {
-    Route::resource('dhcp-server', 'DhcpServerController')->except(['update', 'edit']);
+    Route::resource('dhcp-server', 'DhcpServerController');
     Route::get('dhcp-server/{id}/{toggle}/toggle', 'DhcpServerController@toggle')->name('dhcp-server.toggle');
-    Route::resource('pool', 'PoolController')->except(['create', 'store', 'destroy']);
-    Route::resource('network', 'NetworkController')->except(['create', 'store', 'destroy']);
+    Route::resource('pool', 'PoolController')->only(['index']);
+    Route::resource('network', 'NetworkController')->only(['index']);
 });
 
 Auth::routes();

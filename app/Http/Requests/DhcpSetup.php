@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class NewDhcpSetup extends FormRequest
+class DhcpSetup extends FormRequest
 {
 
     public static $poolName = 'pool-name';

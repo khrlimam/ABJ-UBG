@@ -5,6 +5,7 @@ namespace App\Http\Mikrotik\Util;
 
 
 use KhairulImam\ROSWrapper\RollbackedException;
+use KhairulImam\ROSWrapper\Wrapper;
 
 class Operation
 {
@@ -39,6 +40,41 @@ class Operation
                     return $item;
             }
         })->all();
+    }
+
+    public static function getUnusedInterfaceAlongWithIpAddress(Wrapper $mikrotik)
+    {
+        $usedInterfaces = collect($mikrotik->run("ip dhcp-server print"))->map(function ($item) {
+            return $item['interface'];
+        })->toArray();
+        $allInterfaces = collect($mikrotik->run("interface print"))->filter(function ($item) use ($usedInterfaces) {
+            return !in_array($item['name'], $usedInterfaces);
+        });
+        $ipAdresses = collect($mikrotik->run("ip address print"));
+        $interfaces = $allInterfaces->map(function ($interface) use ($ipAdresses) {
+            $gotIp = $ipAdresses->filter(function ($interfaceIp) use ($interface) {
+                return $interfaceIp['interface'] == $interface['name'];
+            });
+            if ($gotIp->isNotEmpty())
+                return array_merge($interface, $gotIp->first());
+            return array_merge($interface, ['address' => '-']);
+        });
+        return $interfaces;
+    }
+
+    public static function getAvailableInterfacesAlongWithIpAddresses(Wrapper $mikrotik)
+    {
+        $allInterfaces = collect($mikrotik->run("interface print"));
+        $ipAdresses = collect($mikrotik->run("ip address print"));
+        $interfaces = $allInterfaces->map(function ($interface) use ($ipAdresses) {
+            $gotIp = $ipAdresses->filter(function ($interfaceIp) use ($interface) {
+                return $interfaceIp['interface'] == $interface['name'];
+            });
+            if ($gotIp->isNotEmpty())
+                return array_merge($interface, $gotIp->first());
+            return array_merge($interface, ['address' => '-']);
+        });
+        return $interfaces;
     }
 
 }

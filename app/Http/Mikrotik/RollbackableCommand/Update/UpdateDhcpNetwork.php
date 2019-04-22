@@ -4,7 +4,7 @@
 namespace App\Http\Mikrotik\RollbackableCommand\Update;
 
 
-class UpdateDhcpServer extends BaseUpdateRollbackableCommand
+class UpdateDhcpNetwork extends BaseUpdateRollbackableCommand
 {
     /**
      * @return string
@@ -12,7 +12,7 @@ class UpdateDhcpServer extends BaseUpdateRollbackableCommand
      */
     public function getRunCommand()
     {
-        return "ip dhcp-server set";
+        return "ip dhcp-server network set";
     }
 
     /**
@@ -20,7 +20,7 @@ class UpdateDhcpServer extends BaseUpdateRollbackableCommand
      */
     public function getRollbackCommand()
     {
-        return "ip dhcp-server set";
+        return "ip dhcp-server network set";
     }
 
     /**
@@ -28,6 +28,6 @@ class UpdateDhcpServer extends BaseUpdateRollbackableCommand
      */
     function name()
     {
-        return 'Update DHCP Server';
+        return 'Update DHCP Server Network';
     }
 }

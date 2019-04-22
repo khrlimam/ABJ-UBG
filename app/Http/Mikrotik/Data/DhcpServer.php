@@ -53,7 +53,7 @@ class DhcpServer extends NonNullData
 
     public function isDisabled()
     {
-        return 'false' === $this->data['disabled'];
+        return 'true' === $this->data['disabled'];
     }
 
 
