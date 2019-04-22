@@ -46,15 +46,18 @@
                         @foreach($dhcpServers as $server)
                             <tr>
                                 <td class="text-md-right">
-                                    @if ($server['disabled'] == 'true') <span class="badge badge-pill badge-danger">Disabled</span> @endif
-                                    @if ($server['invalid'] == 'true') <span class="badge badge-pill badge-warning">Invalid</span> @endif
+                                    @if ($server['disabled'] == 'true') <span data-toggle="tooltip" title="Disabled"
+                                                                              class="badge badge-pill badge-danger">D</span> @endif
+                                    @if ($server['invalid'] == 'true') <span data-toggle="tooltip" title="Invalid"
+                                                                             class="badge badge-pill badge-warning">I</span> @endif
+                                    @if(!empty($clientConnected[$server['name']]))
+                                        <span data-toggle="tooltip" title="Lihat rincian client"
+                                              onclick='showClients("{{ $server['name'] }}")' hover-cursor
+                                              class="badge badge-primary">
+                                        <i class="fa fa-laptop" aria-hidden="true"></i> {{ $clientConnected[$server['name']]->count() }}</span>
+                                    @endif
                                 </td>
-                                <td>
-                                    <span hover-cursor class="badge badge-primary" data-toggle="modal"
-                                          data-target="#exampleModal">
-                                        <i class="fa fa-laptop" aria-hidden="true"></i> {{ !empty($clientConnected[$server['name']])
-                                        ? $clientConnected[$server['name']]->count() : 0 }}</span> {{ $server['name'] }}
-                                </td>
+                                <td>{{ $server['name'] }}</td>
                                 <td>{{ $server['interface'] }}</td>
                                 <td>{{ $server['address-pool'] }}</td>
                                 <td>{{ $server['lease-time'] }}</td>
@@ -98,7 +101,8 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Client DHCP yang terhubung</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Daftar client <label
+                                id="dhcp-server-name"></label></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -108,35 +112,10 @@
                     <tr>
                         <th>Address</th>
                         <th>MAC Address</th>
-                        <th>Client ID</th>
                         <th>Hostname</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr>
-                        <td>11:11:11:11:11</td>
-                        <td>11:22:22:33:33</td>
-                        <td>1313131313</td>
-                        <td>Ubuntu</td>
-                    </tr>
-                    <tr>
-                        <td>11:11:11:11:11</td>
-                        <td>11:22:22:33:33</td>
-                        <td>1313131313</td>
-                        <td>Ubuntu</td>
-                    </tr>
-                    <tr>
-                        <td>11:11:11:11:11</td>
-                        <td>11:22:22:33:33</td>
-                        <td>1313131313</td>
-                        <td>Ubuntu</td>
-                    </tr>
-                    <tr>
-                        <td>11:11:11:11:11</td>
-                        <td>11:22:22:33:33</td>
-                        <td>1313131313</td>
-                        <td>Ubuntu</td>
-                    </tr>
+                    <tbody id="tbody-dhcp-server">
                     </tbody>
                 </table>
                 <div class="modal-footer">
@@ -155,6 +134,24 @@
             })
         })
 
+        function showClients(name) {
+            // clients = JSON.parse($clients);
+            $("#dhcp-server-name").text(name);
+            tbody = document.getElementById("tbody-dhcp-server");
+            let listClients = clients[name];
+            console.log(listClients);
+            tbody.childNodes.forEach((child) => tbody.removeChild(child));
+            if (listClients != undefined) {
+                listClients.forEach((item) => {
+                    let newRow = tbody.insertRow(tbody.childElementCount);
+                    newRow.insertCell(0).innerText = item.address;
+                    newRow.insertCell(1).innerText = item['mac-address'];
+                    newRow.insertCell(2).innerText = item['host-name'];
+                });
+                $("#exampleModal").modal('show');
+            }
+        }
+
         function confirmDeleteForm(form) {
             swal("Apakah anda yakin ingin menghapus data DHCP Server?", {
                 buttons: {
@@ -169,5 +166,7 @@
                     if (value == 'yes') form.submit();
                 });
         }
+
+        let clients = @json($clientConnected);
     </script>
 @endsection
