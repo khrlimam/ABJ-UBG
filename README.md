@@ -1,5 +1,5 @@
 # HOW TO
 1. install all dependencies
-  - `composer install`
+    - `composer install`
 2. Run local server
-  - `php artisan serve`
+    - `php artisan serve`
