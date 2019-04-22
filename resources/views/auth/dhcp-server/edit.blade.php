@@ -5,7 +5,9 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
-                    <a class="btn btn-outline-primary float-right" href="{{ route('dhcp-server.index') }}"><i class="fa fa-list"></i> DHCP Server</a>
+                    <a class="btn btn-outline-primary float-right" href="{{ route('dhcp-server.index') }}">
+                        <i class="fa fa-list"></i> DHCP Server
+                    </a>
                     <h4 class="card-title">Form Edit DHCP Server</h4>
                     <h6 class="card-subtitle mb-2 text-muted">
                         Silakan edit data DHCP Server sesuai kebutuhan Anda.

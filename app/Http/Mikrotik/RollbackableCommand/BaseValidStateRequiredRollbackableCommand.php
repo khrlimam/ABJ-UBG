@@ -5,7 +5,6 @@ namespace App\Http\Mikrotik\RollbackableCommand;
 
 
 use App\Http\Mikrotik\Util\Operation;
-use Exception;
 use Illuminate\Support\Arr;
 use KhairulImam\ROSWrapper\RollbackableCommand;
 use KhairulImam\ROSWrapper\Wrapper as Mikrotik;
