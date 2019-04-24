@@ -47,7 +47,8 @@
                             <tr>
                                 <td class="text-md-right">
                                     @if ($server['disabled'] == 'true') <span data-toggle="tooltip" title="Disabled"
-                                                                              class="badge badge-pill badge-danger"><i class="fa fa-times"></i></span> @endif
+                                                                              class="badge badge-pill badge-danger"><i
+                                                class="fa fa-times"></i></span> @endif
                                     @if ($server['invalid'] == 'true') <span data-toggle="tooltip" title="Invalid"
                                                                              class="badge badge-pill badge-warning">I</span> @endif
                                     @if(!empty($clientConnected[$server['name']]))
@@ -79,7 +80,8 @@
                                                href="{{ route('dhcp-server.toggle', ['id' => $server['.id'],'toggle' => 'yes']) }}"
                                                class="btn btn-warning">Disable</a>
                                         @endif
-                                        <a data-toggle="tooltip" title="Edit data" href="{{ route('dhcp-server.edit', $server['.id']) }}"
+                                        <a data-toggle="tooltip" title="Edit data"
+                                           href="{{ route('dhcp-server.edit', $server['.id']) }}"
                                            class="btn btn-dark"><i class="fa fa-edit"
                                                                    aria-hidden="true"></i></a>
                                         <button data-toggle="tooltip" title="Hapus data"
@@ -132,7 +134,7 @@
             $('[data-toggle="tooltip"]').tooltip({
                 placement: 'bottom'
             })
-        })
+        });
 
         function showClients(name) {
             // clients = JSON.parse($clients);
@@ -141,7 +143,7 @@
             let listClients = clients[name];
             console.log(listClients);
             tbody.childNodes.forEach((child) => tbody.removeChild(child));
-            if (listClients != undefined) {
+            if (listClients !== undefined) {
                 listClients.forEach((item) => {
                     let newRow = tbody.insertRow(tbody.childElementCount);
                     newRow.insertCell(0).innerText = item.address;
@@ -163,7 +165,7 @@
                 },
             })
                 .then((value) => {
-                    if (value == 'yes') form.submit();
+                    if (value === 'yes') form.submit();
                 });
         }
 

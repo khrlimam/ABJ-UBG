@@ -196,13 +196,10 @@ class DhcpServerController extends Controller
                 new UpdateDhcpNetwork($mikrotik, $network->getData(), $newNetworkData),
                 new UpdateDhcpServer($mikrotik, $dhcp->getData(), $newDhcpServerData)
             ));
-            return redirect()->route('dhcp-server.edit', $dhcp->getId())->with('status', 'Data DHCP Server dengan checksum ' . $id . ' telah diupdate.');
+            return redirect()->route('dhcp-server.show', $dhcp->getId())->with('status', 'Data DHCP Server dengan checksum ' . $id . ' telah diupdate.');
         } catch (RollbackedException $exception) {
             return redirect()->back()->withInput()->with('fail', Operation::getPrettyMessage($exception));
         }
-
-
-        dd($validated);
     }
 
     public function toggle($id, $toggle)
